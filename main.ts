@@ -1,134 +1,128 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { type MarkdownView, type MarkdownFileInfo, type Menu, Notice } from 'obsidian';
+const { Plugin, Editor } = require('obsidian');
 
-// Remember to rename these classes and interfaces!
+type EditorInstance = InstanceType<typeof Editor>;
+const CMD_NAME_INC_HEAD_LEVEL = 'Increase Heading Level';
+const CMD_NAME_DEC_HEAD_LEVEL = 'Decrease Heading Level';
 
-interface MyPluginSettings {
-	mySetting: string;
-}
+export default class HeadingLevelChanger extends Plugin {
+    // onload 内でコマンドを登録
+    async onload() {
+        // 見出しレベルを上げるコマンド: 例として「##」を「###」に変換する
+        this.addCommand({
+            id: 'increase-heading-level',
+            name: CMD_NAME_INC_HEAD_LEVEL,
+            editorCallback: (editor: EditorInstance, view: MarkdownView | MarkdownFileInfo) => {
+                this.changeHeadingLevel(editor, 1); // 1 を意味は「レベルを1段階上げる」
+            }
+        });
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
-}
+        // 見出しレベルを下げるコマンド: 例として「###」を「##」に変換する
+        this.addCommand({
+            id: 'decrease-heading-level',
+            name: CMD_NAME_DEC_HEAD_LEVEL,
+            editorCallback: (editor: EditorInstance, view: MarkdownView | MarkdownFileInfo) => {
+                this.changeHeadingLevel(editor, -1); // -1 を意味は「レベルを1段階下げる」
+            }
+        });
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+        // コンテキストメニューに登録
+        this.registerEvent(
+            this.app.workspace.on("editor-menu", (menu: Menu, editor: EditorInstance, info: MarkdownView | MarkdownFileInfo) => {
+                menu.addItem((item) => {
+                    item
+                        .setTitle(CMD_NAME_INC_HEAD_LEVEL)
+                        .setIcon("arrow-up") // 任意のアイコン、アイコン名は Obsidian のアイコンセットから選択
+                        .onClick(() => {
+                            // ここで、先ほど登録したコマンドの処理を実行するか、同じロジックを記述します。
+                            this.changeHeadingLevel(editor, 1);
+                        });
+                });
+                menu.addItem((item) => {
+                    item
+                        .setTitle(CMD_NAME_DEC_HEAD_LEVEL)
+                        .setIcon("arrow-down") // 任意のアイコン、アイコン名は Obsidian のアイコンセットから選択
+                        .onClick(() => {
+                            // ここで、先ほど登録したコマンドの処理を実行するか、同じロジックを記述します。
+                            this.changeHeadingLevel(editor, -1);
+                        });
+                });
+            })
+        );
+    }
 
-	async onload() {
-		await this.loadSettings();
+    /**
+     * 全体のテキストを行ごとに処理し、各行の先頭にある # の数を変更する
+     * @param editor エディタインスタンス
+     * @param delta  +1（増やす）または -1（減らす）
+     */
+    private changeHeadingLevel(editor: EditorInstance, delta: number) {
+        const selectedText: string = editor.getSelection();
 
-		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
-		});
-		// Perform additional things with the ribbon
-		ribbonIconEl.addClass('my-plugin-ribbon-class');
+        if (selectedText) {
+            // 選択範囲の開始行の先頭から、終了行の行末までの全範囲を定義
+            const startPos = editor.getCursor("from");
+            const endPos   = editor.getCursor("to");
+            const fullStartPos = { line: startPos.line, ch: 0 };
+            const fullEndLineText = editor.getLine(endPos.line);
+            const fullEndPos = { line: endPos.line, ch: fullEndLineText.length };
 
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status Bar Text');
+            // 指定範囲のテキストを取得（この場合は選択されている行全体）
+            const fullText: string = editor.getRange(fullStartPos, fullEndPos);
+            const text = fullText;
+            console.debug('target is:', text);
 
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: 'open-sample-modal-simple',
-			name: 'Open sample modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
-			}
-		});
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: 'sample-editor-command',
-			name: 'Sample editor command',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection());
-				editor.replaceSelection('Sample Editor Command');
-			}
-		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: 'open-sample-modal-complex',
-			name: 'Open sample modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
+            // 行ごとに分割して処理する
+            const newText = text.split('\n').map((line) => {
+                // 正規表現で行の先頭にある空白と # の塊をキャプチャする
+                return this.transformHeadingLine(line, delta);
+            }).join('\n');
 
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
-			}
-		});
+            editor.replaceRange(newText, fullStartPos, fullEndPos);
+        } else {
+            // 選択範囲がない場合は、カーソル位置の行を対象とする
+            const cursor = editor.getCursor();
+            const lineText = editor.getLine(cursor.line);
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+            // 行が見出しかどうかチェック
+            const transformedLine = this.transformHeadingLine(lineText, delta);
 
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
-		});
+            if (transformedLine !== lineText) {
+                // 行が見出しだった場合、行全体を置換する
+                const from = { line: cursor.line, ch: 0 };
+                const to = { line: cursor.line, ch: lineText.length };
+                editor.replaceRange(transformedLine, from, to);
+            } else {
+                new Notice("現在行は見出しではないので、変更対象ではありません。");
+            }
+        }
+    }
 
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
-	}
+    /**
+     * 行テキストが見出しの場合に、delta分だけレベルを変更する関数
+     * 見出しでなければ元のテキストをそのまま返す
+     */
+    private transformHeadingLine(line: string, delta: number): string {
+        const match = line.match(/^(\s*)(#+)(\s.*)?$/);
+        if (match) {
+            const indent = match[1] ?? '';
+            let hashes = match[2];
+            const rest = match[3] ?? '';
 
-	onunload() {
+            // heading レベルの変更：deltaが正なら # を追加、負なら # を削除
+            // ただし、# が1未満にならないようにする。
+            const currentLevel = hashes.length;
+            const newLevel = Math.max(1, currentLevel + delta);
+            hashes = '#'.repeat(newLevel);
 
-	}
+            return indent + hashes + (rest ? rest : '');
+        }
 
-	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-	}
+        // heading でない行はそのまま返す
+        return line;
+    }
 
-	async saveSettings() {
-		await this.saveData(this.settings);
-	}
-}
-
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
-
-	onOpen() {
-		const {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
-
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
-
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
-	}
+    async onunload() {
+        // プラグインのアンロード時にクリーンアップするコードがあればここに記述
+    }
 }

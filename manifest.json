@@ -1,11 +1,10 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "heading-level-changer",
+	"name": "Heading Level Changer",
 	"version": "1.0.0",
-	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"minAppVersion": "1.8.10",
+	"description": "EN: This plugin allows you to change heading levels in a note all at once.\nJP: 一括でノート内の見出しレベルを変更するプラグイン。",
+	"author": "rifumi",
+	"authorUrl": "https://github.com/rifumi/heading-level-changer",
 	"isDesktopOnly": false
 }

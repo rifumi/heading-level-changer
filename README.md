@@ -1,94 +1,169 @@
-# Obsidian Sample Plugin
+# Heading Level Changer
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+**Heading Level Changer** is an Obsidian plugin that allows you to easily adjust the heading levels in your notes. With this plugin, you can increment or decrement heading levels either in your selection or on the current line if no text is selected. Improve your markdown editing speed with customizable commands, keyboard shortcuts, and context menu integration.
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+## Demo
+![Demo](explain.gif)
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+## Features
 
-## First time developing plugins?
+- **Adjust heading levels:**  
+  Increase or decrease the number of `#` characters at the beginning of a markdown heading.
+  
+- **Selection-based and cursor-based processing:**  
+  - **When text is selected:** The plugin adjusts heading levels for each selected line.  
+  - **When no text is selected:** If the line where the cursor is located starts with a heading, its level is modified accordingly.
+  
+- **Command palette integration:**  
+  Access the commands via Obsidian's command palette and easily assign your preferred keyboard shortcuts.
+  
+- **Context menu integration:**  
+  Use the right-click editor menu to quickly trigger heading adjustments.
 
-Quick starting guide for new plugin devs:
+## Installation
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+### From the Community Plugins Folder
 
-## Releasing new releases
+1. Open Obsidian.
+2. Go to **Settings > Community plugins**.
+3. Disable **Restricted mode** if it is enabled.
+4. Click on **Browse** and search for **Heading Level Changer**.
+5. Install and then enable the plugin.
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+### Manual Installation
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+1. Download the latest release (ZIP file) from the [GitHub releases page](https://github.com/your-username/heading-level-changer/releases).
+2. Extract the ZIP file.
+3. Copy the extracted folder into your vault’s plugins folder:  
+   **Path:** `<your-vault>/.obsidian/plugins/heading-level-changer`
+4. Restart Obsidian (or reload plugins) and enable **Heading Level Changer** under **Settings > Community plugins**.
 
-## Adding your plugin to the community plugin list
+## Usage
 
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+Once installed and enabled, the plugin provides two primary commands:
 
-## How to use
+### Changing Selected Text / Cursor Line
 
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
+- **Command:** `Increase Heading Level` / `Decrease Heading Level`
+- **Behavior 1:**  
+  When you select one or more lines in a note and run the command, the plugin will adjust the heading level for each selected line.
+- **Behavior 2:**  
+  When no text is selected and the cursor is located in a line that starts with markdown heading syntax, the plugin will adjust the heading level for that line.
 
-## Manually installing the plugin
+These commands are also accessible via the right-click context menu within the editor.
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+### Example
 
-## Improve code quality with eslint (optional)
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- To use eslint with this project, make sure to install eslint from terminal:
-  - `npm install -g eslint`
-- To use eslint to analyze this project use this command:
-  - `eslint main.ts`
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-  - `eslint .\src\`
+Given the following line in your note:
 
-## Funding URL
-
-You can include funding URLs where people who use your plugin can financially support it.
-
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
-
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
+#### Cursor on Heading line
+##### Running **Increase Heading Level** converts it to:
+```md
+## ha -> ### ha
 ```
 
-If you have multiple URLs, you can also do:
-
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
+##### Running **Decrease Heading Level** converts it to:
+```md
+## ha -> # ha 
+# hb -> # hb
 ```
 
-## API Documentation
+#### Selected multiple lines
+If you select multiple heading lines, the command processes all accordingly.
+##### Increase
+```md
+# ha
+abcd
+efg...
+## hb
+hijk
+lmn...
+```
+->
+```md
+## ha
+abcd
+efg...
+### hb
+hijk
+lmn...
+```
+##### Decrease
+level 2,3 -> level 1,2:
+```md
+## ha
+abcd
+efg...
+### hb
+hijk
+lmn...
+```
+->
+```md
+# ha
+abcd
+efg...
+## hb
+hijk
+lmn...
+```
 
-See https://github.com/obsidianmd/obsidian-api
+level 1,2 -> level 1,1:
+```md
+# ha
+abcd
+efg...
+## hb
+hijk
+lmn...
+```
+->
+```md
+# ha
+abcd
+efg...
+# hb
+hijk
+lmn...
+```
+
+## Development
+
+### Requirements
+
+- Node.js (v14 or later recommended)
+- TypeScript
+- Rollup
+
+### Building the Plugin
+
+1. Clone the repository:
+ ```bash
+ git clone https://github.com/rifumi/heading-level-changer.git
+ cd heading-level-changer
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Build the project using Rollup:
+The built file will be available at dist/main.js.
+```bash
+npx rollup --config
+```
+
+4. Copy dist/main.js along with manifest.json and, if applicable, others into your Obsidian plugins folder:
+```bash
+cp ./dist/* <your-vault>/.obsidian/plugins/heading-level-changer/
+```
+
+### Testing
+
+1. Enable Developer Mode in Obsidian.
+
+2. Use your preferred command or reload(off -> on) the plugin to see the changes in real-time.
+
+### License
+This plugin is licensed under the MIT License.
