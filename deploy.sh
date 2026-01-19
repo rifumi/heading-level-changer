@@ -1,8 +1,9 @@
 #!/bin/sh
 set -e
-# npm install -g npm@11.4.2
-# npm install tslib
-# npm i --save-dev @types/node
+
+echo "Running tests..."
+npm run test
+echo "All tests passed."
 
 # コンパイルの実行
 echo "Compiling the plugin..."

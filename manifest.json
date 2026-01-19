@@ -1,7 +1,7 @@
 {
 	"id": "heading-level-changer",
 	"name": "Heading Level Changer",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "1.8.10",
 	"description": "EN: This plugin allows you to change heading levels in a note all at once.\nJP: 一括でノート内の見出しレベルを変更するプラグイン。",
 	"author": "rifumi",

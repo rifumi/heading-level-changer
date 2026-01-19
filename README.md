@@ -1,86 +1,123 @@
 # Heading Level Changer
 
-**Heading Level Changer** is an Obsidian plugin that allows you to easily adjust the heading levels in your notes. With this plugin, you can increment or decrement heading levels either in your selection or on the current line if no text is selected. Improve your markdown editing speed with customizable commands, keyboard shortcuts, and context menu integration.
+**Heading Level Changer** is an Obsidian plugin that allows you to intuitively increase or decrease heading levels (`#` count) within your notes.  
+If text is selected, the plugin adjusts headings within the selection.  
+If no text is selected, it adjusts the heading level of the line where the cursor is located.
+
+The latest version includes an improvement where **the selection is preserved after execution**, making repeated heading adjustments smooth and efficient.
 
 ## Demo
+
 ![Demo](explain.gif)
 
 ## Features
 
-- **Adjust heading levels:**  
-  Increase or decrease the number of `#` characters at the beginning of a markdown heading.
-  
-- **Selection-based and cursor-based processing:**  
-  - **When text is selected:** The plugin adjusts heading levels for each selected line.  
-  - **When no text is selected:** If the line where the cursor is located starts with a heading, its level is modified accordingly.
-  
-- **Command palette integration:**  
-  Access the commands via Obsidian's command palette and easily assign your preferred keyboard shortcuts.
-  
-- **Context menu integration:**  
-  Use the right-click editor menu to quickly trigger heading adjustments.
+- **Increase or decrease heading levels**  
+  Adjust the number of leading `#` characters in Markdown headings.
+
+- **Works with selections or cursor position**  
+  - **When text is selected:**  
+    All heading lines within the selection are processed.  
+    The selection remains active after execution.
+  - **When no text is selected:**  
+    If the cursor is on a heading line, that heading level is adjusted.  
+    The cursor position is preserved.
+
+- **Indented headings are ignored**  
+  Example:  
+      ## Indented heading  
+  Such lines are not treated as headings and will not be modified.
+
+- **Command palette support**  
+  Access `Increase Heading Level` and `Decrease Heading Level` from the command palette.  
+  You can assign custom hotkeys.
+
+- **Context menu support**  
+  Commands are also available from the editor's right‑click context menu.
+
+- Selection is preserved after execution for repeated operations.
 
 ## Installation
 
-### From the Community Plugins Folder
+### ~~From Community Plugins~~
 
-1. Open Obsidian.
-2. Go to **Settings > Community plugins**.
-3. Disable **Restricted mode** if it is enabled.
-4. Click on **Browse** and search for **Heading Level Changer**.
-5. Install and then enable the plugin.
+1. ~~Open Obsidian.~~
+2. ~~Go to **Settings > Community plugins**.~~
+3. ~~Disable **Restricted mode** if enabled.~~
+4. ~~Click **Browse** and search for **Heading Level Changer**.~~
+5. ~~Install and enable the plugin.~~
 
 ### Manual Installation
 
-1. Download the latest release (ZIP file) from the [GitHub releases page](https://github.com/your-username/heading-level-changer/releases).
-2. Extract the ZIP file.
-3. Copy the extracted folder into your vault’s plugins folder:  
-   **Path:** `<your-vault>/.obsidian/plugins/heading-level-changer`
-4. Restart Obsidian (or reload plugins) and enable **Heading Level Changer** under **Settings > Community plugins**.
+1. Download the latest ZIP from the [GitHub Releases](https://github.com/rifumi/heading-level-changer/releases) page.
+2. Extract the ZIP.
+3. Place the extracted folder into:  
+   `<your-vault>/.obsidian/plugins/heading-level-changer`
+4. Restart Obsidian or reload plugins.
 
 ## Usage
 
-Once installed and enabled, the plugin provides two primary commands:
+Once enabled, the plugin provides two commands:
 
-### Changing Selected Text / Cursor Line
+### Heading Level Adjustment
 
-- **Command:** `Increase Heading Level` / `Decrease Heading Level`
-- **Behavior 1:**  
-  When you select one or more lines in a note and run the command, the plugin will adjust the heading level for each selected line.
-- **Behavior 2:**  
-  When no text is selected and the cursor is located in a line that starts with markdown heading syntax, the plugin will adjust the heading level for that line.
+- Increase Heading Level  
+- Decrease Heading Level
 
-These commands are also accessible via the right-click context menu within the editor.
+#### When text is selected  
 
-### Example
+Only lines recognized as headings are modified.
+The selection remains active after execution, allowing repeated adjustments.
 
-Given the following line in your note:
+#### When no text is selected  
 
-#### Cursor on Heading line
-##### Running **Increase Heading Level** converts it to:
-```md
-## ha -> ### ha
+If the cursor is on a heading line, that heading is modified.  
+The cursor position is preserved.
+
+### Examples
+
+#### When the cursor is on a heading line
+
+Increase Heading Level  
+
+```markdown
+## head  ->  ### head
 ```
 
-##### Running **Decrease Heading Level** converts it to:
-```md
-## ha -> # ha 
-# hb -> # hb
+Decrease Heading Level  
+
+```markdown
+## ha  ->  # ha  
+# hb   ->  # hb
 ```
 
-#### Selected multiple lines
-If you select multiple heading lines, the command processes all accordingly.
-##### Increase
-```md
-# ha
-abcd
-efg...
-## hb
-hijk
+#### When multiple lines are selected
+
+Increase example  
+
+```markdown
+# ha  
+abcd  
+efg...  
+## hb  
+hijk  
+lmn...  
+```
+
+->
+
+```markdown
+## ha  
+abcd  
+efg...  
+### hb  
+hijk  
 lmn...
 ```
-->
-```md
+
+Decrease example (levels 2,3 → 1,2)
+
+```markdown
 ## ha
 abcd
 efg...
@@ -88,18 +125,10 @@ efg...
 hijk
 lmn...
 ```
-##### Decrease
-level 2,3 -> level 1,2:
-```md
-## ha
-abcd
-efg...
-### hb
-hijk
-lmn...
-```
+
 ->
-```md
+
+```markdown
 # ha
 abcd
 efg...
@@ -108,8 +137,9 @@ hijk
 lmn...
 ```
 
-level 1,2 -> level 1,1:
-```md
+Decrease example (levels 1,2 → 1,1)
+
+```markdown
 # ha
 abcd
 efg...
@@ -117,13 +147,15 @@ efg...
 hijk
 lmn...
 ```
+
 ->
-```md
-# ha
-abcd
-efg...
-# hb
-hijk
+
+```markdown
+# ha  
+abcd  
+efg...  
+# hb  
+hijk  
 lmn...
 ```
 
@@ -131,39 +163,41 @@ lmn...
 
 ### Requirements
 
-- Node.js (v14 or later recommended)
+- Node.js (v18+ recommended)
 - TypeScript
-- Rollup
+- esbuild (included in the project)
 
-### Building the Plugin
+### Build
 
-1. Clone the repository:
- ```bash
- git clone https://github.com/rifumi/heading-level-changer.git
- cd heading-level-changer
+```sh
+    git clone https://github.com/rifumi/heading-level-changer.git
+    cd heading-level-changer
+    npm install
+    npm run build
 ```
 
-2. Install dependencies:
-```bash
-npm install
+Build output is generated in the `dist/` directory.
+
+### Development mode (watch)
+
+```sh
+    npm run dev
 ```
 
-3. Build the project using Rollup:
-The built file will be available at dist/main.js.
-```bash
-npx rollup --config
+Automatically rebuilds on file save.
+
+### Testing (Vitest)
+
+```sh
+    npm run test
 ```
 
-4. Copy dist/main.js along with manifest.json and, if applicable, others into your Obsidian plugins folder:
-```bash
-cp ./dist/* <your-vault>/.obsidian/plugins/heading-level-changer/
+### Manual deployment
+
+```sh
+    cp ./dist/* <your-vault>/.obsidian/plugins/heading-level-changer/
 ```
 
-### Testing
+## License
 
-1. Enable Developer Mode in Obsidian.
-
-2. Use your preferred command or reload(off -> on) the plugin to see the changes in real-time.
-
-### License
-This plugin is licensed under the MIT License.
+MIT License
